@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_ab7b2abd_72db_4479_be49_1ac6e75b2727_Output_Payload = Array<{  AccountId?: String,   sync_update_record_to_sfdc?: String,   CampaignId?: String,   Amount?: Number,   sync_new_record_to_sfdc?: String,   external_id?: String,   Id: String,   ContactId?: String,   "type"?: String,   CloseDate?: String,   _?: Any}>
+

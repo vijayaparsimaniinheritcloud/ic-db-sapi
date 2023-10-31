@@ -1,0 +1,8 @@
+%dw 2.0
+
+type auto_f43f9763_8c5b_4712_bb5b_455bd9f73781_Output_Payload = {
+  is_success: Boolean, 
+  errors: Array<String>, 
+  _?: Any
+}
+

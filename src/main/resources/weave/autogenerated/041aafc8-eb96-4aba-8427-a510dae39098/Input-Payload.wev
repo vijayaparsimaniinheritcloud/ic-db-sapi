@@ -1,0 +1,16 @@
+%dw 2.0
+
+type auto_041aafc8_eb96_4aba_8427_a510dae39098_Input_Payload = {
+  External_Id?: Number, 
+  AccountId?: String, 
+  CampaignId?: String | Null, 
+  Sync_update_record_to_sfdc?: Boolean, 
+  Amount?: Number, 
+  Id: String, 
+  ContactId?: String | Null, 
+  Sync_new_record_to_sfdc?: Boolean, 
+  "type"?: String, 
+  CloseDate?: String, 
+  _?: Any
+}
+

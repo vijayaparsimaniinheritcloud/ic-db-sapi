@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    
+    <flow name="db-sapi-main">
+        <http:listener config-ref="db-sapi-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="db-sapi-config" />
+    </flow>
+    <flow name="db-sapi-console">
+        <http:listener config-ref="db-sapi-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="db-sapi-config" />
+		<error-handler ref="Error_Handler" />
+    </flow>
+    <flow name="put:\opportunities:application\json:db-sapi-config">
+		<flow-ref doc:name="Flow Reference" doc:id="7260c583-15a6-4b89-9ecf-6fc24b0b6a6d" name="update-opportunity-implementation"/>
+    </flow>
+    <flow name="delete:\opportunities\(oppurtunityId):db-sapi-config">
+		<flow-ref doc:name="Flow Reference" doc:id="52cbd3fc-d85b-4a36-ab69-7dac7e6a91c3" name="Delete-By-Idimplementation"/>
+    </flow>
+    <flow name="get:\opportunities:db-sapi-config">
+		<flow-ref doc:name="Flow Reference" doc:id="a71a18f8-e3b8-414c-9b37-fa08b0764c1f" name="get-All-Opportunitiesimplementation"/>
+    </flow>
+    <flow name="get:\opportunities\(oppurtunityId):db-sapi-config">
+		<flow-ref doc:name="Flow Reference" doc:id="b484392b-28fd-4844-8b95-23f2838104c3" name="get-By-Idimplementation"/>
+    </flow>
+    <flow name="post:\opportunities:application\json:db-sapi-config">
+		<flow-ref doc:name="Flow Reference" doc:id="077559ef-b0ad-4a0f-8dca-c00b051a2cfd" name="create-opportunityimplementation"/>
+    </flow>
+</mule>

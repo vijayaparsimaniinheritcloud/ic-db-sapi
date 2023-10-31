@@ -1,0 +1,6 @@
+https:
+  port: "8082"
+  
+db:
+  host: "sql.freedb.tech"
+  port: "3306"

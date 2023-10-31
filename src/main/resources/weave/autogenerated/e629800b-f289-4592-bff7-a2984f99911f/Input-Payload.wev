@@ -1,0 +1,14 @@
+%dw 2.0
+
+type auto_e629800b_f289_4592_bff7_a2984f99911f_Input_Payload = {
+  External_Id?: Number, 
+  Description?: String, 
+  StageName?: String, 
+  Sync_update_record_to_sfdc?: Boolean, 
+  Amount?: Number, 
+  Sync_new_record_to_sfdc?: Boolean, 
+  CloseDate?: String, 
+  Name?: String, 
+  _?: Any
+}
+

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="create-opportunityimplementation" doc:id="e629800b-f289-4592-bff7-a2984f99911f" >
+		<logger level="INFO" doc:name="start Logger" doc:id="fd3bcc3f-27bc-4af9-9008-87ca164f096e" message="create opportunity implementation started"/>
+		<set-variable value="#[payload.Name]" doc:name="Set Variable" doc:id="ea0f03cd-35d8-4d99-8462-942d5623485e" variableName="Name"/>
+		<db:insert doc:id="87d46238-916a-4585-8305-b9c3ea3c01d8" config-ref="Database_Config" doc:name="create opportunity in database">
+			<db:sql ><![CDATA[INSERT INTO freedb_training_ic.opportunities
+(Name,Description, Amount, StageName, CloseDate, Sync_new_record_to_sfdc, Sync_update_record_to_sfdc, External_Id)
+VALUES(:Name,:Description, :Amount, :StageName, :CloseDate, :Sync_new_record_to_sfdc,:Sync_update_record_to_sfdc, :External_Id);]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"Name":payload.Name,
+	"Description":payload.Description,
+	"Amount":payload.Amount,
+	"StageName":payload.StageName,
+	"CloseDate":payload.CloseDate,
+	"Sync_new_record_to_sfdc":payload.Sync_new_record_to_sfdc,
+	"Sync_update_record_to_sfdc":payload.Sync_update_record_to_sfdc,
+	"External_Id":payload.External_Id
+	}]]]></db:input-parameters>
+		</db:insert>
+		<db:select doc:name="Select" doc:id="46348a78-f3a7-4966-b97a-978002672c1a" config-ref="Database_Config">
+			<db:sql ><![CDATA[select Id from freedb_training_ic.opportunities where Name=:Name;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"Name": vars.Name
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="create opportunity Response Transform Message" doc:id="e58b9f02-6bf5-4b29-b79e-a741bbbad735" >
+			<ee:message >
+				<ee:set-payload resource="dwlScripts/create-opportunity-Response.dwl" />
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="cfa69214-c287-4ae5-8896-be3f27890afd" message="create opportunity implementation compleated"/>
+	</flow>
+	<flow name="get-All-Opportunitiesimplementation" doc:id="ab7b2abd-72db-4479-be49-1ac6e75b2727" >
+		<logger level="INFO" doc:name="start Logger" doc:id="5d836a93-1b85-433f-85cc-eab43ba451df" message="get-All-opportunities implementation start"/>
+		<db:select doc:name="Retrive All opportunities from database" doc:id="44718284-b455-437c-8cc6-c603a83b9f7b" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * from freedb_training_ic.opportunities;]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Retrive All opportunities Response Transform Message" doc:id="d69ab36c-7d8e-420f-9cda-1ac523f9814a" >
+			<ee:message >
+				<ee:set-payload resource="dwlScripts/get-All-opportunities-Response.dwl" />
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="9acb2971-0a81-4217-b4ad-9eb8080a4c25" message="get-All-opportunities implementation compleated"/>
+	</flow>
+	<flow name="get-By-Idimplementation" doc:id="5feb7d9c-f505-4bc0-929d-3dd5eac54521" >
+		<logger level="INFO" doc:name="start Logger" doc:id="897a7164-8f6c-4860-8800-97f6c352a5c9" message="get-By-Id implementation start"/>
+		<set-variable value="#[attributes.uriParams.oppurtunityId]" doc:name="get-By-Id Set in Variable" doc:id="5c2b562a-2d25-424d-8982-8f23b0377947" variableName="Id"/>
+		<db:select doc:name="get By-Id opportunity from database" doc:id="ce62bbc9-7a13-47d9-971f-a5a2988eafeb" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * from freedb_training_ic.opportunities where Id=:Id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"Id":vars.Id
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="get-By-Id opportunity Response Transform Message" doc:id="3487c0e4-263d-478b-94ee-f46338f5c248" >
+			<ee:message >
+				<ee:set-payload resource="dwlScripts/get-By-Id-opportunity-Response.dwl" />
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="8e9d4abe-22e0-48f1-a231-2bef66f38be4" message="get-By-Id implementation compleated"/>
+	</flow>
+	<flow name="update-opportunity-implementation" doc:id="041aafc8-eb96-4aba-8427-a510dae39098" >
+		<logger level="INFO" doc:name="start Logger" doc:id="16f8cac8-db53-4208-bd73-6c8e1c4768a4" message="update opportunity implementation start"/>
+		<set-variable value="#[payload.Id]" doc:name="Set Variable" doc:id="2b375d4f-b792-4ed5-b0f2-92f0f06db4bb" variableName="Id"/>
+		<db:update doc:name="Update opportunity in database" doc:id="38680d0c-823b-4749-bcab-9f8df4f20931" config-ref="Database_Config">
+			<db:sql ><![CDATA[UPDATE freedb_training_ic.opportunities
+SET AccountId=:AccountId,CampaignId=:CampaignId,Amount=:Amount,ContactId=:ContactId,Sync_new_record_to_sfdc=:Sync_new_record_to_sfdc,Sync_update_record_to_sfdc=:Sync_update_record_to_sfdc,External_Id=:External_Id
+WHERE Id=:Id;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"AccountId":payload.AccountId,
+	"CampaignId":payload.CampaignId,
+	"Amount":payload.Amount,
+	"ContactId":payload.ContactId,
+	"Sync_new_record_to_sfdc":payload.Sync_new_record_to_sfdc,
+	"Sync_update_record_to_sfdc":payload.Sync_update_record_to_sfdc,
+	"External_Id":payload.External_Id,
+	"Id":payload.Id
+	
+	
+}]]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="update opportunity Response Transform Message" doc:id="b649b34f-364d-4823-9b71-998fa77a9165" >
+			<ee:message >
+				<ee:set-payload resource="dwlScripts/update-opportunity-Response.dwl" />
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="d09e2638-458c-4314-9f18-23eaa7f5cf3e" message="update opportunity implementation compleated"/>
+	</flow>
+	<flow name="Delete-By-Idimplementation" doc:id="f43f9763-8c5b-4712-bb5b-455bd9f73781" >
+		<logger level="INFO" doc:name="start Logger" doc:id="4ad721df-6506-4596-9144-61275a5586f0" message="Delete By-Id implementation start"/>
+		<set-variable value="#[attributes.uriParams.oppurtunityId]" doc:name="Delete-By-Id Set in Variable" doc:id="93cd7292-7a48-4501-b2d9-c04ea059538f" variableName="Id"/>
+		<db:delete doc:name="Delete-By-Id in database" doc:id="10a8a48d-901f-4878-9ebb-9db6b9a10aea" config-ref="Database_Config">
+			<db:sql ><![CDATA[DELETE from freedb_training_ic.opportunities where Id=:Id;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"Id":vars.Id
+}]]]></db:input-parameters>
+		</db:delete>
+		<ee:transform doc:name="Delete opportunity Response Transform Message" doc:id="adacb001-c3d6-4ad7-a2fe-deea649b1e43" >
+			<ee:message >
+				<ee:set-payload resource="dwlScripts/Delete-By-Id-opportunity-Response.dwl" />
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="4aac5713-7910-44cb-81c5-13ad20f4aecd" message="Delete By-Id implementation compleated"/>
+	</flow>
+</mule>
