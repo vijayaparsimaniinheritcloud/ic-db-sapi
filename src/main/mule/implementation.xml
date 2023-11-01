@@ -51,18 +51,30 @@ VALUES(:Name,:Description, :Amount, :StageName, :CloseDate, :Sync_new_record_to_
 	<flow name="get-By-Idimplementation" doc:id="5feb7d9c-f505-4bc0-929d-3dd5eac54521" >
 		<logger level="INFO" doc:name="start Logger" doc:id="897a7164-8f6c-4860-8800-97f6c352a5c9" message="get-By-Id implementation start"/>
 		<set-variable value="#[attributes.uriParams.oppurtunityId]" doc:name="get-By-Id Set in Variable" doc:id="5c2b562a-2d25-424d-8982-8f23b0377947" variableName="Id"/>
-		<db:select doc:name="get By-Id opportunity from database" doc:id="ce62bbc9-7a13-47d9-971f-a5a2988eafeb" config-ref="Database_Config">
-			<db:sql ><![CDATA[SELECT * from freedb_training_ic.opportunities where Id=:Id]]></db:sql>
-			<db:input-parameters ><![CDATA[#[{
+		<db:query-single doc:name="Retraive Id fron database" doc:id="f0c9bf59-fe3f-4d89-b70d-b3bc7a95dd7b" config-ref="Database_Config">
+			<db:sql ><![CDATA[select Id From freedb_training_ic.opportunities where Id=:Id;]]></db:sql>
+			<db:input-parameters ><![CDATA[#["Id": vars.Id]]]></db:input-parameters>
+		</db:query-single>
+		<choice doc:name="Choice" doc:id="89436918-497e-4ab1-91dd-9c979884da7b" >
+			<when expression="#[isEmpty(payload)]">
+				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;  is_success: false,&#10;  errors: [{&#10; "errormessage": "No record found with This particular Id To Get Details"&#10;  }]&#10;}]' doc:name="Set Payload" doc:id="a3e86881-2e52-434a-a888-f2a80cddea34" />
+				<logger level="INFO" doc:name="End Logger" doc:id="bd9ac936-adfe-4037-9c49-5860007c8389" message="get-By-Id opportunity implementation compleated"/>
+			</when>
+			<otherwise >
+				<db:select doc:name="get By-Id opportunity from database" doc:id="ce62bbc9-7a13-47d9-971f-a5a2988eafeb" config-ref="Database_Config">
+			<db:sql><![CDATA[SELECT * from freedb_training_ic.opportunities where Id=:Id]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
 	"Id":vars.Id
 }]]]></db:input-parameters>
 		</db:select>
-		<ee:transform doc:name="get-By-Id opportunity Response Transform Message" doc:id="3487c0e4-263d-478b-94ee-f46338f5c248" >
-			<ee:message >
+				<ee:transform doc:name="get-By-Id opportunity Response Transform Message" doc:id="3487c0e4-263d-478b-94ee-f46338f5c248">
+			<ee:message>
 				<ee:set-payload resource="dwlScripts/get-By-Id-opportunity-Response.dwl" />
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="End Logger" doc:id="8e9d4abe-22e0-48f1-a231-2bef66f38be4" message="get-By-Id implementation compleated"/>
+				<logger level="INFO" doc:name="End Logger" doc:id="8e9d4abe-22e0-48f1-a231-2bef66f38be4" message="get-By-Id  opportunity implementation compleated" />
+			</otherwise>
+		</choice>
 	</flow>
 	<flow name="update-opportunity-implementation" doc:id="041aafc8-eb96-4aba-8427-a510dae39098" >
 		<logger level="INFO" doc:name="start Logger" doc:id="16f8cac8-db53-4208-bd73-6c8e1c4768a4" message="update opportunity implementation start"/>
@@ -94,17 +106,29 @@ WHERE Id=:Id;]]></db:sql>
 	<flow name="Delete-By-Idimplementation" doc:id="f43f9763-8c5b-4712-bb5b-455bd9f73781" >
 		<logger level="INFO" doc:name="start Logger" doc:id="4ad721df-6506-4596-9144-61275a5586f0" message="Delete By-Id implementation start"/>
 		<set-variable value="#[attributes.uriParams.oppurtunityId]" doc:name="Delete-By-Id Set in Variable" doc:id="93cd7292-7a48-4501-b2d9-c04ea059538f" variableName="Id"/>
-		<db:delete doc:name="Delete-By-Id in database" doc:id="10a8a48d-901f-4878-9ebb-9db6b9a10aea" config-ref="Database_Config">
-			<db:sql ><![CDATA[DELETE from freedb_training_ic.opportunities where Id=:Id;]]></db:sql>
-			<db:input-parameters ><![CDATA[#[{
+		<db:query-single doc:name="Retrive Id from database" doc:id="7a21badc-b733-432a-bc9f-b4586c280f75" config-ref="Database_Config">
+			<db:sql ><![CDATA[select Id From freedb_training_ic.opportunities where Id=:Id;]]></db:sql>
+			<db:input-parameters ><![CDATA[#["Id": vars.Id]]]></db:input-parameters>
+		</db:query-single>
+		<choice doc:name="Choice" doc:id="9ce0d517-296a-492a-8e0f-5e0831c94a58" >
+			<when expression="#[isEmpty(payload)]">
+				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;  is_success: false,&#10;  errors: [{&#10; "errormessage": "No record found with This particular Id To Delete"&#10;  }]&#10;}]' doc:name="Set Payload" doc:id="838c0bfe-7715-4c87-86bb-af00f4ae1cf1" />
+				<logger level="INFO" doc:name="End Logger" doc:id="1b7b41c9-9a8e-4159-b8d3-a7f71e0ae836" message="Delete By-Id implementation compleated"/>
+			</when>
+			<otherwise >
+				<db:delete doc:name="Delete-By-Id in database" doc:id="10a8a48d-901f-4878-9ebb-9db6b9a10aea" config-ref="Database_Config">
+			<db:sql><![CDATA[DELETE from freedb_training_ic.opportunities where Id=:Id;]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
 	"Id":vars.Id
 }]]]></db:input-parameters>
 		</db:delete>
-		<ee:transform doc:name="Delete opportunity Response Transform Message" doc:id="adacb001-c3d6-4ad7-a2fe-deea649b1e43" >
-			<ee:message >
+				<ee:transform doc:name="Delete opportunity Response Transform Message" doc:id="adacb001-c3d6-4ad7-a2fe-deea649b1e43">
+			<ee:message>
 				<ee:set-payload resource="dwlScripts/Delete-By-Id-opportunity-Response.dwl" />
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="End Logger" doc:id="4aac5713-7910-44cb-81c5-13ad20f4aecd" message="Delete By-Id implementation compleated"/>
+				<logger level="INFO" doc:name="End Logger" doc:id="4aac5713-7910-44cb-81c5-13ad20f4aecd" message="Delete By-Id implementation compleated" />
+			</otherwise>
+		</choice>
 	</flow>
 </mule>
