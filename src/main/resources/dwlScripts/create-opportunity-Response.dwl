@@ -3,6 +3,6 @@ output application/json
 ---
 {
   is_success: true,
-  id: payload.Id,
+  id: payload.generatedKeys.GENERATED_KEY,
   errors: []
 }

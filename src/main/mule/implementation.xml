@@ -7,28 +7,27 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<flow name="create-opportunityimplementation" doc:id="e629800b-f289-4592-bff7-a2984f99911f" >
 		<logger level="INFO" doc:name="start Logger" doc:id="fd3bcc3f-27bc-4af9-9008-87ca164f096e" message="create opportunity implementation started"/>
-		<set-variable value="#[payload.Name]" doc:name="Set Variable" doc:id="ea0f03cd-35d8-4d99-8462-942d5623485e" variableName="Name"/>
-		<db:insert doc:id="87d46238-916a-4585-8305-b9c3ea3c01d8" config-ref="Database_Config" doc:name="create opportunity in database">
+		<db:insert doc:id="87d46238-916a-4585-8305-b9c3ea3c01d8" config-ref="Database_Config" doc:name="create opportunity in database" autoGenerateKeys="true">
 			<db:sql ><![CDATA[INSERT INTO freedb_training_ic.opportunities
 (Name,Description, Amount, StageName, CloseDate, Sync_new_record_to_sfdc, Sync_update_record_to_sfdc, External_Id)
 VALUES(:Name,:Description, :Amount, :StageName, :CloseDate, :Sync_new_record_to_sfdc,:Sync_update_record_to_sfdc, :External_Id);]]></db:sql>
 			<db:input-parameters ><![CDATA[#[{
-	"Name":payload.Name,
-	"Description":payload.Description,
-	"Amount":payload.Amount,
-	"StageName":payload.StageName,
-	"CloseDate":payload.CloseDate,
-	"Sync_new_record_to_sfdc":payload.Sync_new_record_to_sfdc,
-	"Sync_update_record_to_sfdc":payload.Sync_update_record_to_sfdc,
-	"External_Id":payload.External_Id
+	"Name":payload.name,
+	"Description":payload.description,
+	"Amount":payload.amount,
+	"StageName":payload.stage_name,
+	"CloseDate":payload.close_date,
+	"Sync_new_record_to_sfdc":payload.sync_new_record_to_sfdc,
+	"Sync_update_record_to_sfdc":payload.sync_update_record_to_sfdc,
+	"External_Id":payload.external_id
 	}]]]></db:input-parameters>
 		</db:insert>
-		<db:select doc:name="Select" doc:id="46348a78-f3a7-4966-b97a-978002672c1a" config-ref="Database_Config">
+		<!-- <db:select doc:name="Select" doc:id="46348a78-f3a7-4966-b97a-978002672c1a" config-ref="Database_Config">
 			<db:sql ><![CDATA[select Id from freedb_training_ic.opportunities where Name=:Name;]]></db:sql>
 			<db:input-parameters ><![CDATA[#[{
 	"Name": vars.Name
 }]]]></db:input-parameters>
-		</db:select>
+		</db:select> -->
 		<ee:transform doc:name="create opportunity Response Transform Message" doc:id="e58b9f02-6bf5-4b29-b79e-a741bbbad735" >
 			<ee:message >
 				<ee:set-payload resource="dwlScripts/create-opportunity-Response.dwl" />
@@ -50,23 +49,19 @@ VALUES(:Name,:Description, :Amount, :StageName, :CloseDate, :Sync_new_record_to_
 	</flow>
 	<flow name="get-By-Idimplementation" doc:id="5feb7d9c-f505-4bc0-929d-3dd5eac54521" >
 		<logger level="INFO" doc:name="start Logger" doc:id="897a7164-8f6c-4860-8800-97f6c352a5c9" message="get-By-Id implementation start"/>
-		<set-variable value="#[attributes.uriParams.oppurtunityId]" doc:name="get-By-Id Set in Variable" doc:id="5c2b562a-2d25-424d-8982-8f23b0377947" variableName="Id"/>
-		<db:query-single doc:name="Retraive Id fron database" doc:id="f0c9bf59-fe3f-4d89-b70d-b3bc7a95dd7b" config-ref="Database_Config">
-			<db:sql ><![CDATA[select Id From freedb_training_ic.opportunities where Id=:Id;]]></db:sql>
-			<db:input-parameters ><![CDATA[#["Id": vars.Id]]]></db:input-parameters>
-		</db:query-single>
+		<set-variable value="#[attributes.uriParams.oppurtunityId]" doc:name="get-By-Id Set in Variable" doc:id="5c2b562a-2d25-424d-8982-8f23b0377947" variableName="id"/>
+		<db:select doc:name="get By-Id opportunity from database" doc:id="ce62bbc9-7a13-47d9-971f-a5a2988eafeb" config-ref="Database_Config">
+			<db:sql><![CDATA[SELECT * from freedb_training_ic.opportunities where Id=:Id]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	"Id":vars.id
+}]]]></db:input-parameters>
+		</db:select>
 		<choice doc:name="Choice" doc:id="89436918-497e-4ab1-91dd-9c979884da7b" >
 			<when expression="#[isEmpty(payload)]">
-				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;  is_success: false,&#10;  errors: [{&#10; "errormessage": "No record found with This particular Id To Get Details"&#10;  }]&#10;}]' doc:name="Set Payload" doc:id="a3e86881-2e52-434a-a888-f2a80cddea34" />
+				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;  is_success: false,&#10;  errors: [{&#10; 	"error_message": "No record found with This particular Id To Get Details"&#10;  }]&#10;}]' doc:name="Set Payload" doc:id="a3e86881-2e52-434a-a888-f2a80cddea34" />
 				<logger level="INFO" doc:name="End Logger" doc:id="bd9ac936-adfe-4037-9c49-5860007c8389" message="get-By-Id opportunity implementation compleated"/>
 			</when>
 			<otherwise >
-				<db:select doc:name="get By-Id opportunity from database" doc:id="ce62bbc9-7a13-47d9-971f-a5a2988eafeb" config-ref="Database_Config">
-			<db:sql><![CDATA[SELECT * from freedb_training_ic.opportunities where Id=:Id]]></db:sql>
-			<db:input-parameters><![CDATA[#[{
-	"Id":vars.Id
-}]]]></db:input-parameters>
-		</db:select>
 				<ee:transform doc:name="get-By-Id opportunity Response Transform Message" doc:id="3487c0e4-263d-478b-94ee-f46338f5c248">
 			<ee:message>
 				<ee:set-payload resource="dwlScripts/get-By-Id-opportunity-Response.dwl" />
@@ -78,22 +73,21 @@ VALUES(:Name,:Description, :Amount, :StageName, :CloseDate, :Sync_new_record_to_
 	</flow>
 	<flow name="update-opportunity-implementation" doc:id="041aafc8-eb96-4aba-8427-a510dae39098" >
 		<logger level="INFO" doc:name="start Logger" doc:id="16f8cac8-db53-4208-bd73-6c8e1c4768a4" message="update opportunity implementation start"/>
-		<set-variable value="#[payload.Id]" doc:name="Set Variable" doc:id="2b375d4f-b792-4ed5-b0f2-92f0f06db4bb" variableName="Id"/>
+		<set-variable value="#[payload.id]" doc:name="Set Variable" doc:id="2b375d4f-b792-4ed5-b0f2-92f0f06db4bb" variableName="id"/>
 		<db:update doc:name="Update opportunity in database" doc:id="38680d0c-823b-4749-bcab-9f8df4f20931" config-ref="Database_Config">
 			<db:sql ><![CDATA[UPDATE freedb_training_ic.opportunities
-SET AccountId=:AccountId,CampaignId=:CampaignId,Amount=:Amount,ContactId=:ContactId,Sync_new_record_to_sfdc=:Sync_new_record_to_sfdc,Sync_update_record_to_sfdc=:Sync_update_record_to_sfdc,External_Id=:External_Id
+SET AccountId=:AccountId,CampaignId=:CampaignId,type=:type,Amount=:Amount,ContactId=:ContactId,Sync_new_record_to_sfdc=:Sync_new_record_to_sfdc,Sync_update_record_to_sfdc=:Sync_update_record_to_sfdc,External_Id=:External_Id
 WHERE Id=:Id;]]></db:sql>
 			<db:input-parameters ><![CDATA[#[{
-	"AccountId":payload.AccountId,
-	"CampaignId":payload.CampaignId,
-	"Amount":payload.Amount,
-	"ContactId":payload.ContactId,
-	"Sync_new_record_to_sfdc":payload.Sync_new_record_to_sfdc,
-	"Sync_update_record_to_sfdc":payload.Sync_update_record_to_sfdc,
-	"External_Id":payload.External_Id,
-	"Id":payload.Id
-	
-	
+	"AccountId":payload.account_id,
+	"CampaignId":payload.campaign_id,
+	"Amount":payload.amount,
+	"ContactId":payload.contact_id,
+	"Sync_new_record_to_sfdc":payload.sync_new_record_to_sfdc,
+	"Sync_update_record_to_sfdc":payload.sync_update_record_to_sfdc,
+	"type": payload.'type',
+	"External_Id":payload.external_id,
+	"Id":payload.id
 }]]]></db:input-parameters>
 		</db:update>
 		<ee:transform doc:name="update opportunity Response Transform Message" doc:id="b649b34f-364d-4823-9b71-998fa77a9165" >
@@ -112,7 +106,7 @@ WHERE Id=:Id;]]></db:sql>
 		</db:query-single>
 		<choice doc:name="Choice" doc:id="9ce0d517-296a-492a-8e0f-5e0831c94a58" >
 			<when expression="#[isEmpty(payload)]">
-				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;  is_success: false,&#10;  errors: [{&#10; "errormessage": "No record found with This particular Id To Delete"&#10;  }]&#10;}]' doc:name="Set Payload" doc:id="838c0bfe-7715-4c87-86bb-af00f4ae1cf1" />
+				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;  is_success: false,&#10;  errors: [{&#10; "error_message": "No record found with This particular Id To Delete"&#10;  }]&#10;}]' doc:name="Set Payload" doc:id="838c0bfe-7715-4c87-86bb-af00f4ae1cf1" />
 				<logger level="INFO" doc:name="End Logger" doc:id="1b7b41c9-9a8e-4159-b8d3-a7f71e0ae836" message="Delete By-Id implementation compleated"/>
 			</when>
 			<otherwise >
