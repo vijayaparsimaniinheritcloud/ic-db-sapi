@@ -12,6 +12,7 @@
             </http:error-response>
         </http:listener>
         <apikit:router config-ref="db-sapi-config" />
+		<error-handler ref="Error_Handler" />
     </flow>
     <flow name="db-sapi-console">
         <http:listener config-ref="db-sapi-httpListenerConfig" path="/console/*">
@@ -24,7 +25,21 @@
             </http:error-response>
         </http:listener>
         <apikit:console config-ref="db-sapi-config" />
-		<error-handler ref="Error_Handler" />
+		<error-handler  >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="788eed36-85ef-4a16-85fd-90f0e2b8a334" type="APIKIT:NOT_FOUND" >
+				<ee:transform doc:name="Transform Message" doc:id="03cf7c25-e108-4c9e-beb6-c57088dabe8c" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[404]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
     </flow>
     <flow name="put:\opportunities:application\json:db-sapi-config">
 		<flow-ref doc:name="Flow Reference" doc:id="7260c583-15a6-4b89-9ecf-6fc24b0b6a6d" name="update-opportunity-implementation"/>
