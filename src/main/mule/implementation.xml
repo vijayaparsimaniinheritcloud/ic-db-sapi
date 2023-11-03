@@ -9,8 +9,8 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 		<logger level="INFO" doc:name="Start Logger" doc:id="fd3bcc3f-27bc-4af9-9008-87ca164f096e" message="create opportunity implementation started"/>
 		<db:insert doc:id="87d46238-916a-4585-8305-b9c3ea3c01d8" config-ref="Database_Config" doc:name="create opportunity in database" autoGenerateKeys="true">
 			<db:sql ><![CDATA[INSERT INTO freedb_training_ic.opportunities
-(Name,Description, Amount, StageName, CloseDate, Sync_new_record_to_sfdc, Sync_update_record_to_sfdc, External_Id)
-VALUES(:Name,:Description, :Amount, :StageName, :CloseDate, :Sync_new_record_to_sfdc,:Sync_update_record_to_sfdc, :External_Id);]]></db:sql>
+(Name,Description, Amount, StageName, CloseDate, Sync_new_record_to_sfdc, Sync_update_record_to_sfdc, External_Id,CreatedDate)
+VALUES(:Name,:Description, :Amount, :StageName, :CloseDate, :Sync_new_record_to_sfdc,:Sync_update_record_to_sfdc, :External_Id,:CreatedDate);]]></db:sql>
 			<db:input-parameters ><![CDATA[#[{
 	"Name":payload.name,
 	"Description":payload.description,
@@ -19,7 +19,8 @@ VALUES(:Name,:Description, :Amount, :StageName, :CloseDate, :Sync_new_record_to_
 	"CloseDate":payload.close_date,
 	"Sync_new_record_to_sfdc":payload.sync_new_record_to_sfdc,
 	"Sync_update_record_to_sfdc":payload.sync_update_record_to_sfdc,
-	"External_Id":payload.external_id
+	"External_Id":payload.external_id,
+	"CreatedDate": now()
 	}]]]></db:input-parameters>
 		</db:insert>
 		<!-- <db:select doc:name="Select" doc:id="46348a78-f3a7-4966-b97a-978002672c1a" config-ref="Database_Config">
@@ -86,7 +87,7 @@ VALUES(:Name,:Description, :Amount, :StageName, :CloseDate, :Sync_new_record_to_
 			<otherwise >
 				<db:update doc:name="Update opportunity in database" doc:id="38680d0c-823b-4749-bcab-9f8df4f20931" config-ref="Database_Config">
 			<db:sql><![CDATA[UPDATE freedb_training_ic.opportunities
-SET AccountId=:AccountId,CampaignId=:CampaignId,type=:type,Amount=:Amount,ContactId=:ContactId,Sync_new_record_to_sfdc=:Sync_new_record_to_sfdc,Sync_update_record_to_sfdc=:Sync_update_record_to_sfdc,External_Id=:External_Id
+SET AccountId=:AccountId,CampaignId=:CampaignId,type=:type,Amount=:Amount,ContactId=:ContactId,Sync_new_record_to_sfdc=:Sync_new_record_to_sfdc,Sync_update_record_to_sfdc=:Sync_update_record_to_sfdc,External_Id=:External_Id,UpdatedDate=:UpdatedDate
 WHERE Id=:Id;]]></db:sql>
 			<db:input-parameters><![CDATA[#[{
 	"AccountId":payload.account_id,
@@ -97,7 +98,8 @@ WHERE Id=:Id;]]></db:sql>
 	"Sync_update_record_to_sfdc":payload.sync_update_record_to_sfdc,
 	"type": payload.'type',
 	"External_Id":payload.external_id,
-	"Id":payload.id
+	"Id":payload.id,
+	"UpdatedDate": now()
 }]]]></db:input-parameters>
 		</db:update>
 				<ee:transform doc:name="update opportunity Response Transform Message" doc:id="b649b34f-364d-4823-9b71-998fa77a9165">

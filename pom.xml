@@ -80,7 +80,7 @@
 		<dependency>
 			<groupId>f7fe4608-44a6-407c-9028-11906c92dd2b</groupId>
 			<artifactId>db-sapi</artifactId>
-			<version>1.0.6</version>
+			<version>1.0.7</version>
 			<classifier>raml</classifier>
 			<type>zip</type>
 		</dependency>
